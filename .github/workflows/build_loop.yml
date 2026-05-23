@@ -225,6 +225,9 @@ jobs:
       # Install project dependencies
       - name: Install Project Dependencies
         run: bundle install
+      # Update dependencies to ensure correct versions
+      - name: Update Project Dependencies
+        run: bundle update
 
       # Sync the GitHub runner clock with the Windows time server (workaround as suggested in https://github.com/actions/runner/issues/2996)
       - name: Sync clock
