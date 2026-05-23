@@ -34,7 +34,7 @@ jobs:
               auth = Base64.strict_encode64("#{ENV["GITHUB_REPOSITORY_OWNER"]}:#{ENV["GH_PAT"]}")
 
               match_nuke(
-                type: "distribution",
+                type: "appstore",
                 api_key: api_key,
                 git_basic_authorization: auth,
                 skip_confirmation: true
