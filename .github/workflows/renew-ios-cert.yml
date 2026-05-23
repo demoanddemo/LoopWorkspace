@@ -8,15 +8,15 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install fastlane
         run: sudo gem install fastlane -NV
 
-      - name: Create temporary Fastfile
+      - name: Create Fastfile
         run: |
           mkdir -p fastlane
+
           cat > fastlane/Fastfile <<'RUBY'
           require "base64"
 
@@ -25,10 +25,10 @@ jobs:
           platform :ios do
             lane :renew_cert do
               api_key = app_store_connect_api_key(
-                key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
-                issuer_id: ENV["APP_STORE_CONNECT_API_ISSUER_ID"],
-                key_content: ENV["APP_STORE_CONNECT_API_KEY"],
-                is_key_content_base64: true
+                key_id: ENV["FASTLANE_KEY_ID"],
+                issuer_id: ENV["FASTLANE_ISSUER_ID"],
+                key_content: ENV["FASTLANE_KEY"],
+                is_key_content_base64: false
               )
 
               auth = Base64.strict_encode64("#{ENV["GITHUB_REPOSITORY_OWNER"]}:#{ENV["GH_PAT"]}")
@@ -51,12 +51,13 @@ jobs:
           end
           RUBY
 
-      - name: Renew certificate
+      - name: Run renew
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           GH_PAT: ${{ secrets.GH_PAT }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
-          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
-          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          FASTLANE_KEY_ID: ${{ secrets.FASTLANE_KEY_ID }}
+          FASTLANE_ISSUER_ID: ${{ secrets.FASTLANE_ISSUER_ID }}
+          FASTLANE_KEY: ${{ secrets.FASTLANE_KEY }}
+
         run: fastlane ios renew_cert
