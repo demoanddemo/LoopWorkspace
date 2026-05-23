@@ -1,0 +1,37 @@
+name: Renew iOS Certificate
+
+on:
+  workflow_dispatch:
+
+jobs:
+  renew-ios-cert:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Install fastlane
+        run: sudo gem install fastlane -NV
+
+      - name: Renew iOS distribution certificate
+        env:
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+
+        run: |
+          echo "Start renewing iOS certificates..."
+
+          fastlane match nuke distribution \
+            --skip_confirmation \
+            --git_basic_authorization "$(printf "%s:%s" "$GITHUB_REPOSITORY_OWNER" "$GH_PAT" | base64)"
+
+          fastlane match appstore \
+            --git_basic_authorization "$(printf "%s:%s" "$GITHUB_REPOSITORY_OWNER" "$GH_PAT" | base64)"
+
+          echo "Done."
