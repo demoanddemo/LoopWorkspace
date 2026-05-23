@@ -229,7 +229,7 @@ platform :ios do
   desc "Validate Secrets"
   lane :validate_secrets do
     setup_ci if ENV['CI']
-    ENV["MATCH_READONLY"] = true.to_s
+    ENV["MATCH_READONLY"] = false.to_s
     
     app_store_connect_api_key(
       key_id: "#{FASTLANE_KEY_ID}",
